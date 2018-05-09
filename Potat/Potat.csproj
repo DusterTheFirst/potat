@@ -43,10 +43,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Map.cs" />
-    <Compile Include="Game.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="src\Extensions.cs" />
+    <Compile Include="src\Map.cs" />
+    <Compile Include="src\Game.cs" />
+    <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
