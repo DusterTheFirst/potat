@@ -122,7 +122,7 @@ namespace Potat {
                 $"The player is at ({player.X}, {player.Y}) on the map with a speed of {playerSpeed}",
                 $"The map is {map.Width} by {map.Height} and offset <{MapPosition.X}, {MapPosition.Y}>",
                 $"The camera can see from ({camera.X}, {camera.Y}) to ({camera.X + camera.Width}, {camera.Y + camera.Height}), a {camera.Width}x{camera.Height} area",
-                $"The user has {String.Join(" ,", Keyboard.GetState().GetPressedKeys().Select(x => x.ToString()))} pressed down",
+                $"The user has {String.Join(", ", Keyboard.GetState().GetPressedKeys().Select(x => x.ToString()))} pressed down",
                 // TODO
                 //$"The map has {null} tiles, {null} visible and {null} offscreen: {null} of which solid tiles, {null} transparent, and {null} doorways",
                 //$"There are {null} entities in the map, {null} of which are moving, and {null} of witch with active pathfinding",
