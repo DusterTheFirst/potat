@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Potat.Extensions;
 
+using Newtonsoft.Json;
+
 namespace Potat {
     public class Scene {
         SpriteFont OpenSans;
@@ -129,6 +131,23 @@ namespace Potat {
         }
     }
 
+    public class Map {
+        public Rectangle bounds;
+
+        public Tile[,] tiles;
+
+        Map(Rectangle bounds, string json) {
+            this.bounds = bounds;
+        }
+
+    }
+
+    public abstract class Tile {
+         Texture2D[] textures;
+
+        [JsonProperty("rotation")]
+        public decimal rotation;
+    }
     //public abstract class Tile {
     //    public Vector2 position;
     //    public Texture2D texture;
