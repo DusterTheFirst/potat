@@ -21,6 +21,8 @@ namespace Potat {
         Vector2 MapPosition => new Vector2(map.X - camera.X, map.Y - camera.Y);
         Vector2 PlayerPosition => new Vector2(player.X - camera.X, player.Y - camera.Y);
 
+        bool overview;
+
 
         public Scene(Game game) {
             OpenSans = game.Content.Load<SpriteFont>("fonts/OpenSans");
@@ -57,6 +59,23 @@ namespace Potat {
             if (kstate.IsKeyDown(Keys.D))
                 player.X += (int)(playerSpeed * gameTime.ElapsedGameTime.TotalSeconds);
 
+            overview = kstate.IsKeyDown(Keys.LeftControl);
+
+            // KEEP PLAYER IN MAP5
+            if (player.Bottom > map.Height) {
+                player.Y = map.Height - player.Height;
+            }
+            if (player.Top < 0) {
+                player.Y = 0;
+            }
+
+            if (player.Right > map.Width) {
+                player.X = map.Width - player.Width;
+            }
+            if (player.Left < 0) {
+                player.X = 0;
+            }
+
             // CENTER CAMERA ON PLAYER
             camera.X = (player.X + (player.Width / 2)) - (camera.Width / 2);
 
@@ -84,34 +103,42 @@ namespace Potat {
             Texture2D rect = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
             rect.SetData(new[] { Color.White });
 
-            // Draw all from map pov
-            //spriteBatch.Draw(rect, map, Color.White);
-            //spriteBatch.Draw(rect, camera, Color.Red);
-            //spriteBatch.Draw(rect, player, Color.Green);
+            //if (overview) {
+                // Draw all from map pov
+                //decimal xscale = (decimal)camera.Width / map.Width;
+                //decimal yscale = (decimal)camera.Height / map.Height;
 
-            // Draw map base
-            spriteBatch.Draw(rect, new Rectangle((int)MapPosition.X, (int)MapPosition.Y, map.Width, map.Height), Color.White);
+                //decimal scale = Math.Min(xscale, yscale);
+                //Console.Write(scale);
 
-            // Draw map tiles
-            bool black = true;
-            bool preblack;
-            for (int x = 0; x < map.Width; x += 200) {
-                preblack = black;
-                for (int y = 0; y < map.Height; y += 200) {
-                    spriteBatch.Draw(rect, new Rectangle((int)MapPosition.X + x, (int)MapPosition.Y + y, 200, 200), black ? Color.Black : Color.White);
-                    black = !black;
+                //spriteBatch.Draw(rect, new Rectangle(map.X, map.Y, (int)(map.Width * scale), (int)(map.Height * scale)), Color.White);
+                //spriteBatch.Draw(rect, new Rectangle((int)(camera.X * scale), (int)(camera.Y * scale), (int)(camera.Width * scale), (int)(camera.Height * scale)), Color.Red * .5f);
+                //spriteBatch.Draw(rect, new Rectangle((int)(player.X * scale), (int)(player.Y * scale), (int)(player.Width * scale), (int)(player.Height * scale)), Color.Green);
+            //} else {
+                // Draw map base
+                spriteBatch.Draw(rect, new Rectangle((int)MapPosition.X, (int)MapPosition.Y, map.Width, map.Height), Color.White);
+
+                // Draw map tiles
+                bool black = true;
+                bool preblack;
+                for (int x = 0; x < map.Width; x += 200) {
+                    preblack = black;
+                    for (int y = 0; y < map.Height; y += 200) {
+                        spriteBatch.Draw(rect, new Rectangle((int)MapPosition.X + x, (int)MapPosition.Y + y, 200, 200), black ? Color.Black : Color.White);
+                        black = !black;
+                    }
+                    if (preblack == black)
+                        black = !black;
                 }
-                if (preblack == black)
-                    black = !black;
-            }
 
-            // Draw player
-            spriteBatch.Draw(rect, new Rectangle((int)PlayerPosition.X, (int)PlayerPosition.Y, player.Width, player.Height), Color.Green);
-
-            spriteBatch.DrawDebug(OpenSans, new[] {
+                // Draw player
+                spriteBatch.Draw(rect, new Rectangle((int)PlayerPosition.X, (int)PlayerPosition.Y, player.Width, player.Height), Color.Green);
+            //}
+			spriteBatch.DrawDebug(OpenSans, new[] {
                 $"The player is at ({player.X}, {player.Y}) on the map with a speed of {playerSpeed}",
                 $"The map is {map.Width} by {map.Height} and offset <{MapPosition.X}, {MapPosition.Y}>",
                 $"The camera can see from ({camera.X}, {camera.Y}) to ({camera.X + camera.Width}, {camera.Y + camera.Height}), a {camera.Width}x{camera.Height} area",
+                //$"The map's X scale is {(decimal)camera.Width / map.Width} and its Y scale is {(decimal)camera.Height / map.Height}"
                 // TODO
                 //$"The map has {null} tiles, {null} visible and {null} offscreen: {null} of which solid tiles, {null} transparent, and {null} doorways",
                 //$"There are {null} entities in the map, {null} of which are moving, and {null} of witch with active pathfinding",
