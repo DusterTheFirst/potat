@@ -143,23 +143,7 @@ namespace Potat {
     }
 
     public abstract class Tile {
-         Texture2D[] textures;
-
-        [JsonProperty("rotation")]
-        public decimal rotation;
+        public abstract void Tick();
+        public abstract Texture2D Render();
     }
-    //public abstract class Tile {
-    //    public Vector2 position;
-    //    public Texture2D texture;
-    //    public Rectangle bounds;
-    //    public bool solid;
-    //    public float layer;
-
-    //    public Tile(Vector2 position, Texture2D texture, bool solid = true, float layer = 0) {
-    //        this.position = position;
-    //        this.texture = texture;
-    //        this.bounds = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
-
-    //    }
-    //}
 }
