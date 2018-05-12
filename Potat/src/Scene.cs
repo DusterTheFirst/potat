@@ -31,7 +31,7 @@ namespace Potat {
 
             player = new Rectangle(0, 0, 100, 100);
 
-            map = new Map(new Rectangle(0, 0, 1000, 1000), new IRenderable[,]{
+            map = new Map(new Rectangle(0, 0, 10000, 10000), new IRenderable[,]{
                 {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
                 {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
                 {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
