@@ -7,9 +7,26 @@ using System.Linq;
 
 namespace Potat.Tiles {
     /// <summary>
+    /// Basic tile
+    /// </summary>
+    public abstract class Tile : IRenderable {
+        public bool solid;
+        public bool colliding;
+        public Rectangle bounds;
+
+        public Tile(bool solid, Rectangle? bounds = null) {
+            this.solid = solid;
+            this.bounds = bounds ?? new Rectangle(0, 0, 32, 32);
+        }
+
+        public abstract void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime);
+        public abstract void Tick(GameTime gameTime);
+    }
+
+    /// <summary>
     /// Tile with one single texture
     /// </summary>
-    public abstract class TexturedTile : IRenderable {
+    public abstract class TexturedTile : Tile {
         private readonly static Random rnd = new Random();
         /// <summary>
         /// Tile's texture
@@ -24,24 +41,24 @@ namespace Potat.Tiles {
         /// </summary>
         public int rotation;
 
-        public TexturedTile(Texture2D texture, bool rotate = false) {
+        public TexturedTile(Texture2D texture, bool rotate = false, bool solid = false): base(solid) {
             this.texture = texture;
             this.rotate = rotate;
 
             rotation = rotate ? rnd.Next(3) : 0;
         }
 
-        public void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime) {
+        public override void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime) {
             spriteBatch.Draw(texture, renderRect, null, Color.White, 0f, Vector2.Zero, (SpriteEffects)rotation, 0);
             //spriteBatch.Draw(texture, renderRect, Color.White);
         }
 
-        public void Tick(GameTime gameTime) { }
+        public override void Tick(GameTime gameTime) { }
     }
     /// <summary>
     /// Tile with multiple textures. Ex: doors, clocks, lights
     /// </summary>
-    public abstract class MultiTexturedTile : IRenderable {
+    public abstract class MultiTexturedTile : Tile {
         /// <summary>
         /// Tile's Textures (line of textures)
         /// </summary>
@@ -53,19 +70,17 @@ namespace Potat.Tiles {
 
         public uint frames {
             get {
-                return (uint)textures.Width / 32;
+                return (uint)(textures.Width / bounds.Width);
             }
         }
 
-        public MultiTexturedTile(Texture2D textures) {
+        public MultiTexturedTile(Texture2D textures, bool solid = false) : base(solid) {
             this.textures = textures;
         }
 
-        public void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime) {
-            spriteBatch.Draw(textures, renderRect, new Rectangle(32 * (int)texture, 0, 32, 32), Color.White);
+        public override void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime) {
+            spriteBatch.Draw(textures, renderRect, new Rectangle(bounds.Width * (int)texture, 0, bounds.Width, bounds.Height), Color.White);
         }
-
-        public abstract void Tick(GameTime gameTime);
     }
 
     /// <summary>
@@ -84,9 +99,9 @@ namespace Potat.Tiles {
         /// <summary>
         /// Create an animated tile
         /// </summary>
-        /// <param name="textures">32px by a factor of 32px sprite sheet</param>
+        /// <param name="textures">Sprite sheet</param>
         /// <param name="fps">Frames per second</param>
-        public AnimatedTile(Texture2D textures, int fps) : base(textures) {
+        public AnimatedTile(Texture2D textures, int fps, bool solid = false) : base(textures, solid) {
             this.textures = textures;
             this.fps = fps;
         }
@@ -97,57 +112,6 @@ namespace Potat.Tiles {
                     texture = 0;
                 else
                     texture += 1;
-
-
-                lastframe = gameTime.TotalGameTime.TotalMilliseconds;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Tile with a flowing animation
-    /// </summary>
-    public abstract class FlowingAnimatedTile : IRenderable {
-        /// <summary>
-        /// Rate at which to change the frame
-        /// </summary>
-        int fps;
-        /// <summary>
-        /// Last time a frame was drawn
-        /// </summary>
-        double lastframe = 0;
-        /// <summary>
-        /// Tile's Textures (line of textures)
-        /// </summary>
-        public Texture2D textures;
-        /// <summary>
-        /// Y offset of the animation
-        /// </summary>
-        public int offset;
-
-        public FlowingAnimatedTile(Texture2D textures, int fps) {
-            this.textures = textures;
-            this.fps = fps;
-        }
-
-        public void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime) {
-            spriteBatch.Draw(textures, renderRect, new Rectangle(0, offset, 32, 32), Color.White);
-
-            if (offset + 32 > textures.Height) {
-                int bottom = offset + 32;
-                int missing = bottom - textures.Height;
-                int exists = 32 - missing;
-
-                spriteBatch.Draw(textures, new Rectangle(renderRect.X, renderRect.Y + exists*2, 64, missing*2), new Rectangle(0, 0, 32, missing), Color.White);
-            }
-        }
-
-        public void Tick(GameTime gameTime) {
-            if (lastframe + 1 / ((double)fps / 1000) < gameTime.TotalGameTime.TotalMilliseconds) {
-                if (offset == textures.Height - 1)
-                    offset = 0;
-                else
-                    offset += 1;
 
 
                 lastframe = gameTime.TotalGameTime.TotalMilliseconds;
@@ -167,9 +131,14 @@ namespace Potat.Tiles {
         }
     }
 
-    // TODO: ACTAULLY ANIMATE
-    public class WaterTile : FlowingAnimatedTile {
-        public WaterTile(Game game) : base(game.Content.Load<Texture2D>("tiles/water"), 20) {
+    public class WaterTile : AnimatedTile {
+        public WaterTile(Game game) : base(game.Content.Load<Texture2D>("tiles/water"), 2) {
+
+        }
+    }
+
+    public class BrickTile: TexturedTile {
+        public BrickTile(Game game) : base(game.Content.Load<Texture2D>("tiles/brick"), false, true) {
 
         }
     }

@@ -7,6 +7,27 @@ using Potat.Extensions;
 using Potat.Tiles;
 
 namespace Potat {
+    /// <summary>
+    /// A renderable object
+    /// </summary>
+    public interface IRenderable {
+        /// <summary>
+        /// Render the object.
+        /// Only ever called if visible
+        /// </summary>
+        /// <param name="renderRect">The calculated position of the object on the screen</param>
+        /// <param name="spriteBatch">The sprite batch to render to</param>
+        /// <param name="gameTime">The time since the last frame (not the last render call)</param>
+        void Render(Rectangle renderRect, SpriteBatch spriteBatch, GameTime gameTime);
+
+        /// <summary>
+        /// Tick the object.
+        /// Called throughout life unconditionally
+        /// </summary>
+        /// <param name="gameTime">Time since the last tick</param>
+        void Tick(GameTime gameTime);
+    }
+
     public class Scene {
         SpriteFont OpenSans;
 
@@ -31,15 +52,15 @@ namespace Potat {
 
             player = new Rectangle(0, 0, 100, 100);
 
-            map = new Map(new Rectangle(0, 0, 10000, 10000), new IRenderable[,]{
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game)},
-                {new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game)}
+            map = new Map(new Rectangle(0, 0, 10000, 10000), new Rectangle(0, 0, 64, 64), new Tile[,]{
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new StoneTile(game), new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game),  new WoodTile(game), new BrickTile(game)},
+                {new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new WaterTile(game), new BrickTile(game)}
             });
         }
 
@@ -109,16 +130,17 @@ namespace Potat {
                 camera.Y = Math.Min(camera.Y, map.bounds.Height - camera.Height);
             }
 
+            Tile[] intersectingTiles = map.GetTiles(player);
+
+            Console.WriteLine(intersectingTiles/*.Where(x => x.solid).Count()*/);
+
             // TICK MAP
             map.Tick(gameTime);
         }
 
         public void Render(SpriteBatch spriteBatch, Game game, GameTime gameTime) {
-            Texture2D rect = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-            rect.SetData(new[] { Color.White });
-
             // Draw map base
-            spriteBatch.Draw(rect, new Rectangle((int)MapPosition.X, (int)MapPosition.Y, map.bounds.Width, map.bounds.Height), Color.White);
+            spriteBatch.FillRectangle(new Rectangle((int)MapPosition.X, (int)MapPosition.Y, map.bounds.Width, map.bounds.Height), Color.White);
 
             // Draw map tiles
             bool black = true;
@@ -126,7 +148,7 @@ namespace Potat {
             for (int x = 0; x < map.bounds.Width; x += 200) {
                 preblack = black;
                 for (int y = 0; y < map.bounds.Height; y += 200) {
-                    spriteBatch.Draw(rect, new Rectangle((int)MapPosition.X + x, (int)MapPosition.Y + y, 200, 200), black ? Color.Black : Color.White);
+                    spriteBatch.FillRectangle(new Rectangle((int)MapPosition.X + x, (int)MapPosition.Y + y, 200, 200), black ? Color.Black : Color.White);
                     black = !black;
                 }
                 if (preblack == black)
@@ -137,7 +159,9 @@ namespace Potat {
             map.Render(new Rectangle((int)MapPosition.X, (int)MapPosition.Y, map.bounds.Width, map.bounds.Height), spriteBatch, gameTime);
 
             // Draw player
-            spriteBatch.Draw(rect, new Rectangle((int)PlayerPosition.X, (int)PlayerPosition.Y, player.Width, player.Height), Color.Green);
+            spriteBatch.FillRectangle(new Rectangle((int)PlayerPosition.X, (int)PlayerPosition.Y, player.Width, player.Height), Color.Green);
+
+            // DEBUN INFO
             if (debug) {
                 spriteBatch.DrawDebug(OpenSans, new[] {
                     $"The player is at ({player.X}, {player.Y}) on the map with a speed of {playerSpeed}",
@@ -145,7 +169,7 @@ namespace Potat {
                     $"The camera can see from ({camera.X}, {camera.Y}) to ({camera.X + camera.Width}, {camera.Y + camera.Height}), a {camera.Width}x{camera.Height} area",
                     $"The user has {String.Join(", ", Keyboard.GetState().GetPressedKeys().Select(x => x.ToString()))} pressed down",
                     // TODO
-                    //$"The map has {null} tiles, {null} visible and {null} offscreen: {null} of which solid tiles, {null} transparent, and {null} doorways",
+                    $"The map has {map.tiles.Length} tiles, {"N/A"} visible and {"N/A"} offscreen: {"N/A"} of which solid tiles, {"N/A"} transparent, and {"N/A"} doorways",
                     //$"There are {null} entities in the map, {null} of which are moving, and {null} of witch with active pathfinding",
                     //$"There are {null} collisions happening in the map"
                     "F3 for less details"
