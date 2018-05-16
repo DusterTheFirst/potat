@@ -12,7 +12,7 @@ namespace Potato {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Engine : Game {
+    public class Game : Microsoft.Xna.Framework.Game {
         readonly GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -20,7 +20,7 @@ namespace Potato {
         private TiledMap map;
         private TiledMapRenderer mapRenderer;
 
-        public Engine() {
+        public Game() {
             graphics = new GraphicsDeviceManager(this);
 
             Content.RootDirectory = "Content";
