@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Potat {
+namespace Potato {
     /// <summary>
     /// The main class.
     /// </summary>
@@ -10,7 +10,7 @@ namespace Potat {
         /// </summary>
         [STAThread]
         static void Main() {
-            using (var game = new Game())
+            using (var game = new Engine())
                 game.Run();
         }
     }
